@@ -174,9 +174,11 @@ def main():
     inference_size = (w, h)
     # Average fps over last 30 frames.
     fps_counter = common.avg_fps_counter(30)
-
+    # detection counter
+    d_counter = 0
     def user_callback(input_tensor, src_size, inference_box, mot_tracker):
         nonlocal fps_counter
+        nonlocal d_counter
         start_time = time.monotonic()
         common.set_input(interpreter, input_tensor)
         interpreter.invoke()
@@ -197,10 +199,12 @@ def main():
         trdata = []
         trackerFlag = False
         if detections.any():
+            d_counter = d_counter + 1
             if mot_tracker != None:
                 trdata = mot_tracker.update(detections)
                 trackerFlag = True
             text_lines = [
+                'XDOF: {}'.format(d_counter),
                 'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),
                 'FPS: {} fps'.format(round(next(fps_counter))), ]
         if len(objs) != 0:
