@@ -45,7 +45,7 @@ from tracker import ObjectTracker
 
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
-
+svgwrite.Drawing(debug=False)
 
 def load_labels(path):
     p = re.compile(r'\s*(\d+)(.+)')
