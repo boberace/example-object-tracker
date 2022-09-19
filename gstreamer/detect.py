@@ -42,10 +42,21 @@ import re
 import svgwrite
 import time
 from tracker import ObjectTracker
+from periphery import Serial
 
+serial = Serial("/dev/ttyS1",115200)
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 svgwrite.Drawing(debug=False)
+
+def get_xdof():
+    buf = ""
+    buf = serial.read(128,0)
+    if len(buf):
+        while b'\r\n\r\n' not in buf:
+            buf = buf + serial.read(128,0)
+    return buf
+        
 
 def load_labels(path):
     p = re.compile(r'\s*(\d+)(.+)')
@@ -206,7 +217,8 @@ def main():
             text_lines = [
                 'XDOF: {}'.format(d_counter),
                 'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),
-                'FPS: {} fps'.format(round(next(fps_counter))), ]
+                'FPS: {} fps'.format(round(next(fps_counter))),
+                get_xdof()]
         if len(objs) != 0:
             return generate_svg(src_size, inference_size, inference_box, objs, labels, text_lines, trdata, trackerFlag)
 
